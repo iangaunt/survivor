@@ -1,0 +1,42 @@
+{
+  "name": "survivor",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {},
+
+    "ServerScriptService": {
+      "VoteSort": {
+        "$path": "src/ServerScriptService/votesort"
+      }
+    },
+
+    "StarterPlayer": {
+      "StarterPlayerScripts": {}
+    },
+
+    "StarterGui": {
+      "Scripts": {
+        "$className": "Folder",
+        "Audience": {
+          "$path": "src/StarterGui/audience"
+        },
+        "Castaway": {
+          "$path": "src/StarterGui/castaway"
+        },
+        "Host": {
+          "$path": "src/StarterGui/host"
+        }
+      },
+      "Init": {
+        "$path": "src/StarterGui/init"
+      }
+    },
+
+    "SoundService": {
+      "$properties": {
+        "RespectFilteringEnabled": true
+      }
+    }
+  }
+}

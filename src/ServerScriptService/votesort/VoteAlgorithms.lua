@@ -73,6 +73,16 @@ function algos.getLengthOfDictionary(dictionary)
     return length;
 end
 
+-- Sorts a dictionary in descending order. o(n^2)
+function algos.sortDictionary(dictionary)
+    -- Create a new table to store parties in their sorted order.
+
+    
+    --[[
+
+    ]]--
+end
+
 -- Gets the highest amount of votes cast for a given party. o(n)
 function algos.getHighestVoteCount(dictionary)
     -- Initialize a number to store the highest amount of votes.
@@ -89,13 +99,27 @@ function algos.getHighestVoteCount(dictionary)
     return highest;
 end
 
--- Checks if the dictionary contains a tie. If a tie is present, the function will return a table of tied parties. If not, it will return false. 
+-- Checks if the dictionary contains a tie. If a tie is present, the function will return a table of tied parties. If not, it will return false. o(n^2)
 function algos.checkIfVoteContainsTie(dictionary)
     -- Initialize a table to store tied votes.
     local tiedVotes = {}
 
-    -- Initialize a number to store the highest number of tied votes.
+    -- Fetch the highest number of votes in the dictionary.
+    local highestVotes = algos.getHighestVoteCount(dictionary)
 
+    -- Pass through every key-value pairs, checking if the total matches the highest number of votes.
+    for key, value in pairs (dictionary) do
+        if value == highestVotes then
+            table.insert(tiedVotes, key)
+        end
+    end
+
+    -- If there are two or more parties counted in the tiedVotes table, then there is a tie.
+    if #tiedVotes > 1 then
+        return tiedVotes
+    else
+        return false
+    end
 end
 
 return algos

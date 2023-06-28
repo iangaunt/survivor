@@ -76,10 +76,18 @@ end
 -- Sorts a dictionary in descending order. o(n^2)
 function algos.sortDictionary(dictionary)
     -- Create a new table to store parties in their sorted order.
+    local sortedParties = {};
 
-    
     --[[
-
+    i ← 1
+    while i < length(A)
+        j ← i
+        while j > 0 and A[j-1] > A[j]
+            swap A[j] and A[j-1]
+            j ← j - 1
+        end while
+        i ← i + 1
+    end while
     ]]--
 end
 

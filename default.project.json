@@ -6,6 +6,9 @@
     "ReplicatedStorage": {},
 
     "ServerScriptService": {
+      "HostKit": {
+        "$path": "src/ServerScriptService/hostkit"
+      },
       "VoteSort": {
         "$path": "src/ServerScriptService/votesort"
       }

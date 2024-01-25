@@ -3,19 +3,24 @@
   "tree": {
     "$className": "DataModel",
 
-    "ReplicatedStorage": {},
+    "ReplicatedStorage": {
+      "Castaways": {
+        "$path": "src/ReplicatedStorage/castaways"
+      }
+    },
 
     "ServerScriptService": {
       "HostKit": {
         "$path": "src/ServerScriptService/hostkit"
       },
-      "VoteSort": {
+      "Vote": {
         "$path": "src/ServerScriptService/votesort"
       }
     },
 
     "StarterPlayer": {
-      "StarterPlayerScripts": {}
+      "StarterPlayerScripts": {
+      }
     },
 
     "StarterGui": {
@@ -29,6 +34,9 @@
         },
         "Host": {
           "$path": "src/StarterGui/host"
+        },
+        "Vote": {
+          "$path": "src/StarterGui/vote"
         }
       },
       "Init": {

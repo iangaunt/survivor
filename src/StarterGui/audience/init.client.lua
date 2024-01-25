@@ -14,12 +14,14 @@ local InformationPanel, SpectatePanel = AudienceGui.InformationPanel, AudienceGu
 local LeftButton, RightButton = SpectatePanel:FindFirstChild("LeftButton", true), SpectatePanel:FindFirstChild("RightButton", true)
 
 local currentCamera = workspace.CurrentCamera
+local HostCommunication = ReplicatedStorage.HostCommunication
 
 -- [ variables ] --
 -- Stores which teams can be spectated.
 local spectateTeams = {
     "Alma",
-    "Muerte"
+    "Muerte",
+	"Purgatorio"
 }
 
 -- Stores which players can be spectated.
@@ -33,6 +35,9 @@ local focusedOnText = false
 
 -- Stores if the lag mode is currently enabled on the client.
 local lagModeOn = false
+
+-- Stores if the player is able to move the camera (such as in cutscenes).
+local canMoveCamera = true
 
 -- [ functions ] --
 -- Changes the color of the button to its inverted stage when prompted.
@@ -52,18 +57,27 @@ end
 
 -- Changes the position of the player's camera to the next available player.
 function moveSpectate(mod)
-	viewingNumber = viewingNumber + mod
+	if canMoveCamera then
+		viewingNumber = viewingNumber + mod
 
-	if spectatePlayers[viewingNumber] == nil then
-		if viewingNumber > #spectatePlayers then
-            viewingNumber = 1
-        elseif viewingNumber < 1 then
-            viewingNumber = #spectatePlayers
-        end
-	else
-		currentCamera.CameraSubject = spectatePlayers[viewingNumber].Character.Humanoid
+		if spectatePlayers[viewingNumber] == nil then
+			if viewingNumber > #spectatePlayers then
+	            viewingNumber = 1
+	        elseif viewingNumber < 1 then
+	            viewingNumber = #spectatePlayers
+	        end
+		else
+			currentCamera.CameraSubject = spectatePlayers[viewingNumber].Character.Humanoid
+		end
 	end
 end
+
+-- If the HostKit fires a key to lock the camera, prevent spectating at that point.
+HostCommunication.OnClientEvent:Connect(function(key, info)
+	if key == "TribalCamera" then
+		canMoveCamera = not info
+	end
+end)
 
 -- Toggles the information panel.
 Information.MouseButton1Up:Connect(function()
@@ -117,18 +131,23 @@ end)
 
 -- Updates the table of players available to spectate, making sure added or removed players are added.
 RunService.Heartbeat:Connect(function()
-    for _, team in pairs(spectateTeams) do
-        for _, p in pairs (Teams[team]:GetPlayers()) do
-            table.insert(spectatePlayers, p)
-        end
-    end
+	if player.Team == game.Teams.Audience then
+		AudienceGui.Enabled = true
+		for _, team in pairs(spectateTeams) do
+			for _, p in pairs (Teams[team]:GetPlayers()) do
+				table.insert(spectatePlayers, p)
+			end
+		end
 
-    for _, p in pairs (spectatePlayers) do
-        if p.Character == nil then
-            table.remove(spectatePlayers, table.find(spectatePlayers, p))
-            moveSpectate(1)
-        end
-    end
+		for _, p in pairs (spectatePlayers) do
+			if p.Character == nil then
+				table.remove(spectatePlayers, table.find(spectatePlayers, p))
+				moveSpectate(1)
+			end
+		end
+	else
+		AudienceGui.Enabled = false
+	end
 end)
 
 -- Toggles all lag parts in the game, regardless of their level.
@@ -151,7 +170,7 @@ LagMode.MouseButton1Up:Connect(function()
 	else
 		if #ReplicatedStorage.RemovedObjects:GetChildren() > 0 then
 			for _, part in pairs (ReplicatedStorage.RemovedObjects:GetDescendants()) do
-				if part:IsA("BasePart") or part:IsA("Model") then
+				if part:FindFirstChild("ParentHolder") and (part:IsA("BasePart") or part:IsA("Model")) then
 					part.Parent = part.ParentHolder.Value
 					part.ParentHolder:Destroy()
 				end

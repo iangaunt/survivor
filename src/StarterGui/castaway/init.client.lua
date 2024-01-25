@@ -1,13 +1,14 @@
 -- [ functions ] --
-local Players, ReplicatedStorage, RunService, TweenService = game:GetService("Players"), game:GetService("ReplicatedStorage"), game:GetService("RunService"), game:GetService("TweenService")
+local Lighting, Players, ReplicatedStorage, RunService, TweenService = game:GetService("Lighting"), game:GetService("Players"), game:GetService("ReplicatedStorage"), game:GetService("RunService"), game:GetService("TweenService")
 
 -- [ objects ] --
 local player: Player = Players.LocalPlayer;
+local HostCommunication = ReplicatedStorage.HostCommunication
 
 -- Reference the Castaway Gui, as well as various sections of the Gui.
 local CastawayGui = script.Parent
 local System = CastawayGui.Container.System
-local Camps, Lag, Title = System.Camps, System.Lag, System.Title
+local Camps, Lag, Title, Reset, TimeOfDay = System.Camps, System.Lag, System.Title, System.Reset, System.TimeOfDay
 
 -- [ variables ] --
 local tweenDebounce = false
@@ -15,9 +16,9 @@ local lagSetting = 2
 
 -- [ variables ] --
 local whitelist = {
-    "Host",
     "Muerte",
-    "Alma"
+    "Alma",
+    "Purgatorio"
 }
 
 -- [ functions ] --
@@ -59,8 +60,8 @@ Title.MouseButton1Up:Connect(function()
     if not tweenDebounce then
         tweenDebounce = true
 
-        local verticalPos = if System.Position == UDim2.new(0.5, 0, 1.225, 0) then 0.7 else 1.225
-        local background = if verticalPos == 1.225 then 1 else 0.6
+        local verticalPos = if System.Position == UDim2.new(0.5, 0, 1.13, 0) then 0.6 else 1.13
+        local background = if verticalPos == 1.13 then 1 else 0.6
 
         TweenService:Create(
             System,
@@ -130,18 +131,43 @@ for _, mode in pairs (Lag.Items.Settings:GetChildren()) do
 
             if #ReplicatedStorage.RemovedObjects:GetChildren() > 0 then
                 for _, part in pairs (ReplicatedStorage.RemovedObjects:GetDescendants()) do
-                    if part:IsA("BasePart") or part:IsA("Model") then
-                        local lagValue = part.LagSetting.Value
+					if part:IsA("BasePart") or part:IsA("Model") then
+						if part:FindFirstChild("LagSetting") then
+							local lagValue = part.LagSetting.Value
 
-                        if lagValue <= lagSetting then
-                            part.Parent = part.ParentHolder.Value
-                            part.ParentHolder:Destroy()
-                        end
+							if lagValue <= lagSetting then
+								part.Parent = part.ParentHolder.Value
+								part.ParentHolder:Destroy()
+							end
+						end
                     end
                 end
             end
-
-            print("gamer")
         end)
     end
 end
+
+-- Prompts the server to reset the player's avatar when the Reset button is pressed.
+Reset.Refresh.MouseButton1Up:Connect(function()
+    HostCommunication:FireServer("ResetCharacter")
+end)
+
+-- Updates the TimeOfDay tag on the player's screen to show them the current sun position.
+Lighting:GetPropertyChangedSignal("TimeOfDay"):Connect(function()
+	-- Get the current hour of the time.
+	local hourNum = tonumber(string.sub(Lighting.TimeOfDay, 1, 2))
+
+	-- Add a Day or Night tag at the beginning depending on the time of day.
+    -- 17 to 6 is Night, 16 and 17 and 6 to 7 is Dusk / Dawn, else is day
+	local caption = "🌕 Night"
+    if hourNum == 15 then
+        caption = "🌙 Dusk"
+    elseif hourNum == 5 then
+        caption = "⛅ Dawn"
+    elseif hourNum > 5 and hourNum < 15 then
+        caption = "☀️ Day"
+    end
+
+	-- Display the time of day.
+	TimeOfDay.Text = caption
+end)
